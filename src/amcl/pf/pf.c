@@ -315,11 +315,9 @@ void pf_update_sensor(pf_t *pf, pf_sensor_model_fn_t sensor_fn, void *sensor_dat
 
 
 /*----------------------------------------------------------------------------------*/
-    // pf->alpha: alpfa_th
+    // pf->alpha: alpha_th
     // w_sum: alpha
     
-    // pf->alpha = 2.0;    // 誘拐状態の条件を緩くする
-
     double beta = 1.0 - (w_sum / pf->alpha);
     printf("w_sum : %e, w_v : %e\n", w_sum, w_v);
     printf("beta : %e, pf->alpha : %e\n", beta, pf->alpha);
