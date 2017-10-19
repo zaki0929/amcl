@@ -50,6 +50,7 @@
 #include "nav_msgs/SetMap.h"
 #include "std_srvs/Empty.h"
 #include "std_srvs/SetBool.h"
+#include "std_msgs/Float32.h"
 
 // For transform support
 #include "tf/transform_broadcaster.h"
@@ -236,6 +237,8 @@ class AmclNode
     ros::NodeHandle private_nh_;
     ros::Publisher pose_pub_;
     ros::Publisher particlecloud_pub_;
+    ros::Publisher alpha_pub_;
+    ros::Publisher alpha_th_pub_;
     ros::ServiceServer global_loc_srv_;
     ros::ServiceServer nomotion_update_srv_; //to let amcl update samples without requiring motion
     ros::ServiceServer set_map_srv_;
@@ -432,6 +435,8 @@ AmclNode::AmclNode() :
 
   pose_pub_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", 2, true);
   particlecloud_pub_ = nh_.advertise<geometry_msgs::PoseArray>("particlecloud", 2, true);
+  alpha_pub_ = nh_.advertise<std_msgs::Float32>("alpha", 100, true);
+  alpha_th_pub_ = nh_.advertise<std_msgs::Float32>("alpha_th", 100, true);
   global_loc_srv_ = nh_.advertiseService("global_localization", 
 					 &AmclNode::globalLocalizationCallback,
                                          this);
@@ -1288,6 +1293,14 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
                         cloud_msg.poses[i]);
       }
       particlecloud_pub_.publish(cloud_msg);
+      
+      std_msgs::Float32 alpha_msg;
+      alpha_msg.data = pf_->w_sum;
+      alpha_pub_.publish(alpha_msg);
+
+      std_msgs::Float32 alpha_th_msg;
+      alpha_th_msg.data = pf_->alpha;
+      alpha_th_pub_.publish(alpha_th_msg);
     }
   }
 
